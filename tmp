@@ -1,0 +1,63 @@
+void leaveQ1(){
+
+    PKT* pkt;
+
+    char str_timestamp[STR_TIME_LEN];
+    char str_intertime[STR_TIME_LEN];
+
+    pkt = (PKT*)tail_Obj(Q1);
+    dequeue_Obj(Q1);
+
+    *pkt->Q1_departure_time = getTime();               // time when pkt leave Q1
+    bucket_token_num-=*pkt->token_needed;
+    get_str_time(str_timestamp, *pkt->Q1_departure_time, 0 );
+    get_str_time(str_intertime, *pkt->Q1_departure_time-*pkt->Q1_arrival_time, 1);
+
+    fprintf(stdout, "%s: p%d leaves Q1, time in Q1 = %s, token bucket now has %d token\n", str_timestamp, *pkt->id, str_intertime, bucket_token_num );
+
+    enqueue_Obj(Q2, pkt );
+    *pkt->Q2_arrival_time = getTime();
+    get_str_time(str_timestamp, *pkt->Q2_arrival_time, 0 );
+
+    fprintf(stdout, "%s: p%d enters Q2\n", str_timestamp, *pkt->id);
+
+    Q1_pkt_counter++;
+    Q1_pkt_time+=(*pkt->Q1_departure_time-*pkt->Q1_arrival_time);
+
+    pthread_cond_broadcast(&cv);
+
+
+}
+
+sigemptyset(&set);
+sigaddset(&set, SIGINT );
+pthread_sigmask(SIG_BLOCK, &set, NULL);
+
+void* cthread_func(){
+
+    int sig;
+    char str_timestamp[STR_TIME_LEN];
+
+    sigwait(&set,&sig);
+
+    pthread_mutex_lock(&m);
+
+    get_str_time( str_timestamp, getTime(), 0);
+    fprintf(stdout, "%s: SIGINT caught\n", str_timestamp );
+
+    pthread_cancel(pthread);
+    pthread_cancel(tthread);
+
+    destructList(Q1);
+    destructList(Q2);
+
+    kill_status = 1;
+
+    pthread_mutex_unlock(&m);
+
+    return 0;
+
+}
+
+sigset_t set, oldset;
+

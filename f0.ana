@@ -1,0 +1,63 @@
+
+==== Packets ====
+p1: inter-arrival time should be 226.482ms
+    time in Q1 should be 2346.503ms
+    time in Q2 should be 0.026ms
+    should request 153ms of service time
+    time in S1 should be 155.376ms
+    time in system should be 2501.970ms
+
+p2: inter-arrival time should be 2758.481ms
+    time in Q1 should be 255.562ms
+    time in Q2 should be 0.027ms
+    should request 3741ms of service time
+    time in S2 should be 3746.103ms
+    time in system should be 4001.808ms
+
+p3: inter-arrival time should be 2353.811ms
+    time in Q1 should be 0.006ms
+    time in Q2 should be 0.086ms
+    should request 228ms of service time
+    time in S1 should be 231.276ms
+    time in system should be 231.381ms
+
+p4: inter-arrival time should be 1656.367ms
+
+p5: inter-arrival time should be 1756.137ms
+
+p6: inter-arrival time should be 117.273ms
+
+p7: inter-arrival time should be 1518.345ms
+    time in Q1 should be 0.004ms
+    time in Q2 should be 0.044ms
+    should request 5437ms of service time
+    time in S1 should be 5440.705ms
+    time in system should be 5440.770ms
+
+p8: inter-arrival time should be 8236.296ms
+    time in Q1 should be 0.003ms
+    time in Q2 should be 0.028ms
+    should request 8007ms of service time
+    time in S2 should be 8012.133ms
+    time in system should be 8012.170ms
+
+p9: inter-arrival time should be 981.065ms
+
+p10: inter-arrival time should be 5970.597ms
+    time in Q1 should be 0.005ms
+    time in Q2 should be 0.093ms
+    should request 1555ms of service time
+    time in S1 should be 1560.062ms
+    time in system should be 1560.181ms
+
+==== Statistics ====
+average packet inter-arrival time = 2.5574854
+average packet service time = 3.1909425
+average number of packets in Q1 = 0.0958931617679305
+average number of packets in Q2 = 1.12031480846118e-05
+average number of packets in S1 = 0.272244569144982
+average number of packets in S2 = 0.433319931321754
+average time a packet spent in system = 3.62471333333333
+standard deviation for time spent in system = 2.57318184609442
+token drop probability = 0.657894736842105
+packet drop probability = 0.4

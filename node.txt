@@ -1,0 +1,286 @@
+packet:
+
+	int id
+	int token_needed
+	int service_time
+	int Q1_arrival_time
+	int Q1_departure_time
+	int Q2_arrival_time
+	int Q2_departure_time
+	
+
+global:
+
+	int n // number to arrive
+	char* tfile // FILENAME
+	int B // token bucket capacity
+	int P // required number of token
+
+	double lambda;
+	double mu;
+	double r;
+
+	int pkt_time //us (1/lambda)*1000000
+	int token_time //us (1/r)*1000000
+
+	LIST list;
+
+	int next_pkt_time
+	int next_token_time
+
+	int mode // 0 Deterministic
+			 // 1 Trace-driven
+
+	struct timeval begin_time;
+
+	int pkt_counter;
+	int drop_pkt_num;
+	int pkt_inter_time;
+
+	int token_counter;
+	int drop_token_num;
+
+	int Q1_pkt_counter
+	int Q1_pkt_time
+
+	int Q2_pkt_counter
+	int Q2_pkt_time
+
+	int S1_pkt_counter
+	int S1_in_sys_time
+
+	int S2_pkt_counter
+	int S2_in_sys_time
+
+	int S1_service_time
+	int S2_service_time
+
+	int prog_end;
+
+
+main thread:
+
+	check parameter:
+
+		check parameter
+		if( mode == 1 ) open file;
+
+	print parameter:
+
+		Emulation Parameters:
+			number to arrive = 20
+			lambda = 2            (print this line only if -t is not specified)
+			mu = 0.35             (print this line only if -t is not specified)
+			r = 4
+			B = 10
+			P = 3                 (print this line only if -t is not specified)
+			tsfile = FILENAME         (print this line only if -t is specified)
+	
+	calculate global Parameters
+
+	pthread_cond_t cv = PTHREAD_COND_INITIALIZER
+	prog_end = 0;
+	pthread_t pthread;
+    pthread_t tthread;
+    pthread_t s1thread;
+    pthread_t s2thread;
+
+	list = malloc
+
+	pkt_inter_time = 0;
+
+	Q1_pkt_counter=0
+	Q1_pkt_time=0
+
+	Q2_pkt_counter=0
+	Q2_pkt_time=0
+
+	S1_pkt_counter=0
+	S1_in_sys_time=0
+	S1_service_time=0
+
+	S2_pkt_counter=0
+	S2_in_sys_time=0
+	S2_service_time=0
+
+	get begin_time
+
+	create three thread
+
+	pthread_join(packet);
+	pthread_join(token);
+
+	prog_end = 1;
+
+	pthread_join(server1);
+	pthread_join(server2);
+
+	printout:
+
+		average packet inter-arrival time = pkt_counter/pkt_inter_time  <real-value>
+        average packet service time = (S1_pkt_counter+S2_pkt_counter)/(S1_pkt_counter+S2_pkt_counter) <real-value>
+    
+        average number of packets in Q1 = (Q1_pkt_counter/Q1_pkt_time) <real-value>
+        average number of packets in Q2 = (Q2_pkt_counter/Q2_pkt_time) <real-value>
+        average number of packets at S1 = (S1_pkt_counter/S1_in_sys_time) <real-value>
+        average number of packets at S2 = (S2_pkt_counter/S2_in_sys_time) <real-value>
+    
+        average time a packet spent in system = (S1_pkt_counter+S2_pkt_counter)/(S1_in_sys_time+S2_in_sys_time)   <real-value>
+        standard deviation for time spent in system = <real-value>
+
+        token drop probability = drop_token_num/token_counter <real-value>
+        packet drop probability = drop_pkt_num/pkt_counter  <real-value>
+
+
+	return
+
+packet thread:
+
+	int last_arrival_time = 0;
+
+	while( read_file ):
+
+		get next_pkt_time
+		pkt_inter_time+=next_pkt_time
+
+		packet = NewPacket( token_needed, service_time );
+
+		get current_time;
+
+		if( current_time<next_pkt_time ):
+			usleep( next_pkt_time-current_time );
+		
+		lock-
+
+		print pkt arrive
+		pkt_counter++;
+
+		packet.Q1_arrival_time = current_time
+
+		if( Q1 empty ):
+
+			if( token enough ):
+
+					transfer packet
+					list.front.pkt.Q1_departure_time = current_time
+					remove token
+
+					print departure
+
+					wake up server
+
+			else:
+
+				insert packet into Q1
+		
+		else:
+
+			insert packet into Q1
+
+		unlock-
+
+	return
+
+
+token thread:
+
+	int last_arrival_time = 0;
+
+	while( read_file ):
+
+		get next_token_time
+
+		get current_time;
+
+		if( current_time<next_pkt_time ):
+			usleep( next_pkt_time-current_time );
+
+		lock-
+
+		print token arrive
+		token_counter++
+
+		if( token_bucket == B ):
+			drop_token_num++
+
+		else if( token_bucket >= pkt.token_needed ):
+
+			transfer packet
+			list.front.pkt.Q1_departure_time = current_time
+			remove token
+
+			print departure
+
+			wake up server
+
+
+		unlock-
+
+	return
+
+server 1 thread:
+
+	while( prog_end == 0 ):
+
+		pthread_cond_wait( &cv, &m);
+
+		lock-
+			pop Q2
+
+			int arrival_time = get current_time
+
+			usleep( pkt.service_time );
+
+			departure_time = get current_time
+			int service_time = departure_time-current_time
+			
+			Q1_pkt_counter++;
+			Q1_pkt_time+=pkt.Q1_departure_time-pkt.Q1_arrival_time
+
+			Q2_pkt_counter++;
+			Q2_pkt_time+=pkt.Q2_departure_time-pkt.Q2_arrival_time
+
+			S1_pkt_counter++;
+			S1_service_time += departure_time-arrival_time
+
+			int in_sys_time = departure_time-pkt.Q1_arrival_time
+
+			printout "p1 departs from S1, service time = 2859.861ms, time in system = 3109.731ms"
+
+			S1_in_sys_time+=in_sys_time
+
+		unlock-
+
+server 2 thread:
+
+	while( prog_end == 0 ):
+
+		pthread_cond_wait( &cv, &m);
+
+		lock-
+			pop Q2
+
+			int arrival_time = get current_time
+
+			usleep( pkt.service_time );
+
+			departure_time = get current_time
+			int service_time = departure_time-current_time
+			
+			Q1_pkt_counter++;
+			Q1_pkt_time+=pkt.Q1_departure_time-pkt.Q1_arrival_time
+
+			Q2_pkt_counter++;
+			Q2_pkt_time+=pkt.Q2_departure_time-pkt.Q2_arrival_time
+
+			S1_pkt_counter++;
+			S1_service_time += departure_time-arrival_time
+
+			int in_sys_time = departure_time-pkt.Q1_arrival_time
+
+			printout "p1 departs from S1, service time = 2859.861ms, time in system = 3109.731ms"
+
+			S1_in_sys_time+=in_sys_time
+
+		unlock-
+
