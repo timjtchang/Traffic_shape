@@ -1,6 +1,7 @@
 Traffic Shape:
 
 Tim Chang @ USC 2023
+jentingc@gmail.com
 
 1. Environment:
 	
@@ -22,11 +23,11 @@ Tim Chang @ USC 2023
 
 3. Implementation:
 	
-	Using 5 threads to process concurrently
-	pthread receives incoming packets and pushes them into a queue
-	tthread receives incoming tokens and pushes them into another queue
-	s1thread and s2thread hold the packets that satisfy the processing requirements and process them
-	cthread holds the errors that occur during the process.
+	Using 5 threads to process concurrently<br/>
+	pthread receives incoming packets and pushes them into a queue<br/>
+	tthread receives incoming tokens and pushes them into another queue<br/>
+	s1thread and s2thread hold the packets that satisfy the processing requirements and process them<br/>
+	cthread holds the errors that occur during the process.<br/>
 
 4. Result:
 	
